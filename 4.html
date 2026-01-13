@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KALIKA - Safety Portal</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Inter:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bone: {
+                            DEFAULT: '#F9F6EE',
+                            dark: '#EBE7DE'
+                        },
+                        graphite: {
+                            DEFAULT: '#252525',
+                            light: '#3A3A3A',
+                            hover: '#1a1a1a'
+                        }
+                    },
+                    fontFamily: {
+                        brand: ['Cinzel', 'serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
+                        'fade-in': 'fadeIn 0.8s ease-out forwards',
+                        'slide-in': 'slideIn 0.5s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideIn: {
+                            '0%': { opacity: '0', transform: 'translateX(30px)' },
+                            '100%': { opacity: '1', transform: 'translateX(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        .input-group:focus-within label,
+        .input-group input:not(:placeholder-shown) + label,
+        .input-group select:not([value=""]) + label {
+            transform: translateY(-1.5rem) scale(0.85);
+            color: #252525;
+        }
+
+        .bg-texture {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        .hidden-page { display: none; }
+    </style>
+</head>
+<body class="bg-bone text-graphite font-sans min-h-screen relative overflow-x-hidden selection:bg-graphite selection:text-bone">
+
+    <div class="absolute inset-0 bg-texture z-0"></div>
+
+    <!-- LOGIN PAGE -->
+    <div id="loginPage" class="min-h-screen flex items-center justify-center relative z-10 p-6">
+        <main class="w-full max-w-[1200px] flex flex-col md:flex-row items-center justify-center">
+            <div class="hidden md:flex flex-col justify-center items-start w-1/2 pr-12 animate-fade-in">
+                <h2 class="font-brand text-6xl lg:text-8xl tracking-widest text-graphite opacity-90">KALIKA</h2>
+                <p class="text-xs font-sans tracking-[0.4em] uppercase text-stone-500 mb-4 ml-1">An initiative by CompileX</p>
+                <div class="h-0.5 w-24 bg-graphite mb-6"></div>
+                <p class="font-serif text-xl text-stone-600 italic leading-relaxed max-w-sm">
+                    "Empowering safety through elegant technology." <br>
+                    <span class="text-sm not-italic font-sans text-stone-400 mt-2 block tracking-widest uppercase">— The Guardian Project</span>
+                </p>
+            </div>
+
+            <div class="w-full md:w-1/2 max-w-[480px] bg-white/60 backdrop-blur-md border border-white/50 shadow-xl rounded-2xl p-8 md:p-12 animate-fade-in-up">
+                <div class="md:hidden text-center mb-8">
+                    <h1 class="font-brand text-4xl tracking-widest text-graphite">KALIKA</h1>
+                    <p class="text-[10px] font-sans tracking-[0.3em] uppercase text-stone-500 mt-1">An initiative by CompileX</p>
+                </div>
+
+                <div class="mb-10 text-center md:text-left">
+                    <p class="text-xs font-bold tracking-[0.2em] uppercase text-stone-500 mb-2">Secure Access</p>
+                    <h2 class="font-serif text-3xl md:text-4xl text-graphite">Welcome Back</h2>
+                </div>
+
+                <form class="space-y-8" id="authForm">
+                    <div class="input-group relative">
+                        <input type="email" id="email" class="peer w-full bg-transparent border-b border-stone-300 py-2.5 text-graphite placeholder-transparent focus:outline-none focus:border-graphite transition-colors" placeholder="Email" required>
+                        <label for="email" class="absolute left-0 top-2.5 text-stone-400 text-sm transition-all pointer-events-none">Email Address</label>
+                    </div>
+                    <div class="input-group relative">
+                        <input type="password" id="password" class="peer w-full bg-transparent border-b border-stone-300 py-2.5 text-graphite placeholder-transparent focus:outline-none focus:border-graphite transition-colors" placeholder="Password" required>
+                        <label for="password" class="absolute left-0 top-2.5 text-stone-400 text-sm transition-all pointer-events-none">Password</label>
+                    </div>
+                    <button type="submit" id="loginBtn" class="group w-full bg-graphite text-bone py-4 px-6 rounded-full hover:bg-graphite-hover transition-all shadow-lg flex items-center justify-center gap-2 overflow-hidden relative">
+                        <span class="font-medium tracking-widest text-sm uppercase z-10">Sign In</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1 z-10"></i>
+                    </button>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <!-- SOS SETUP PAGE -->
+    <div id="sosPage" class="hidden-page min-h-screen flex items-center justify-center relative z-10 p-6">
+        <main class="w-full max-w-[900px]">
+            <div class="bg-white/70 backdrop-blur-xl border border-white/60 shadow-2xl rounded-3xl p-8 md:p-16 relative overflow-hidden">
+                
+                <header class="mb-12">
+                    <div class="flex items-center gap-2 text-stone-400 mb-4">
+                        <span class="font-brand text-xl tracking-tighter">KALIKA</span>
+                        <span class="h-4 w-[1px] bg-stone-300"></span>
+                        <span class="text-[10px] uppercase tracking-widest">SOS Configuration</span>
+                    </div>
+                    <h1 class="font-serif text-4xl md:text-5xl text-graphite mb-4">Welcome to Safety</h1>
+                    <p class="text-stone-500 max-w-md">Connect your Women's Safety Jacket and configure emergency protocols.</p>
+                </header>
+
+                <form class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8" id="sosDetailsForm">
+                    <div class="space-y-6">
+                        <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-stone-400 border-b border-stone-100 pb-2">Device Pairing</h3>
+                        <div class="input-group relative">
+                            <input type="text" id="jacketId" class="peer w-full bg-transparent border-b border-stone-300 py-2.5 text-graphite placeholder-transparent focus:outline-none focus:border-graphite transition-colors" placeholder="Jacket ID" required>
+                            <label for="jacketId" class="absolute left-0 top-2.5 text-stone-400 text-sm transition-all pointer-events-none">Jacket Serial Number (ID)</label>
+                        </div>
+                        <div class="flex items-center gap-4 p-4 bg-bone/50 rounded-xl border border-stone-200/50">
+                            <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                                <i data-lucide="bluetooth" class="w-5 h-5 text-green-600 animate-pulse"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-semibold">Bluetooth Status</p>
+                                <p class="text-[10px] text-stone-500 uppercase">Searching for Jacket...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-stone-400 border-b border-stone-100 pb-2">Emergency Contacts</h3>
+                        <div class="input-group relative">
+                            <input type="text" id="primaryContact" class="peer w-full bg-transparent border-b border-stone-300 py-2.5 text-graphite placeholder-transparent focus:outline-none focus:border-graphite transition-colors" placeholder="Primary Contact" required>
+                            <label for="primaryContact" class="absolute left-0 top-2.5 text-stone-400 text-sm transition-all pointer-events-none">Primary SOS Number</label>
+                        </div>
+                        <div class="input-group relative">
+                            <input type="text" id="relation" class="peer w-full bg-transparent border-b border-stone-300 py-2.5 text-graphite placeholder-transparent focus:outline-none focus:border-graphite transition-colors" placeholder="Relation" required>
+                            <label for="relation" class="absolute left-0 top-2.5 text-stone-400 text-sm transition-all pointer-events-none">Relationship</label>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" id="policeAlert" class="accent-graphite w-4 h-4">
+                            <label for="policeAlert" class="text-sm text-stone-500">Enable automatic local police notification</label>
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-2 pt-6">
+                        <button type="submit" id="saveSosBtn" class="group w-full md:w-auto bg-graphite text-bone py-4 px-12 rounded-full hover:bg-graphite-hover transition-all shadow-lg flex items-center justify-center gap-3">
+                            <span class="font-medium tracking-widest text-sm uppercase">Activate Safety System</span>
+                            <i data-lucide="shield-check" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="notification" class="fixed bottom-8 right-8 bg-graphite text-bone px-6 py-4 rounded-xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-50 flex items-center gap-3">
+        <div id="notifyIcon" class="p-2 bg-white/10 rounded-lg"></div>
+        <div>
+            <h4 id="notifyTitle" class="font-bold text-sm tracking-wide">Success</h4>
+            <p id="notifyMsg" class="text-xs text-stone-300"></p>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global State
+        let currentUser = null;
+        let db, auth;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'kalika-safety-portal';
+
+        // Initialize Firebase
+        const initFirebase = async () => {
+            try {
+                const firebaseConfig = JSON.parse(__firebase_config);
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                // Auth Step (Rule 3)
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                onAuthStateChanged(auth, (user) => {
+                    currentUser = user;
+                    if (user) {
+                        console.log("Authenticated as:", user.uid);
+                        // Check if user already has SOS details saved
+                        checkExistingSOS(user.uid);
+                    }
+                });
+            } catch (error) {
+                console.error("Firebase Init Error:", error);
+            }
+        };
+
+        // UI Helpers
+        const showNotification = (title, message, iconType = 'check-circle', color = 'text-green-400') => {
+            const notification = document.getElementById('notification');
+            document.getElementById('notifyTitle').innerText = title;
+            document.getElementById('notifyMsg').innerText = message;
+            document.getElementById('notifyIcon').innerHTML = `<i data-lucide="${iconType}" class="w-5 h-5 ${color}"></i>`;
+            lucide.createIcons();
+            notification.classList.remove('translate-y-24', 'opacity-0');
+            setTimeout(() => notification.classList.add('translate-y-24', 'opacity-0'), 4000);
+        };
+
+        const checkExistingSOS = async (uid) => {
+            if (!uid) return;
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'sos_profiles', uid);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                document.getElementById('jacketId').value = data.jacketId || '';
+                document.getElementById('primaryContact').value = data.primaryContact || '';
+                document.getElementById('relation').value = data.relation || '';
+                document.getElementById('policeAlert').checked = !!data.policeAlert;
+            }
+        };
+
+        // Event Handlers
+        window.handleLogin = async (event) => {
+            event.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            btn.innerHTML = '<span class="animate-pulse tracking-widest text-sm uppercase">Verifying...</span>';
+            
+            // Simulating auth delay
+            setTimeout(() => {
+                document.getElementById('loginPage').classList.add('hidden-page');
+                const sosPage = document.getElementById('sosPage');
+                sosPage.classList.remove('hidden-page');
+                sosPage.classList.add('animate-slide-in');
+                showNotification('Welcome', 'Identity verified. Accessing safety portal.');
+                btn.innerHTML = '<span class="font-medium tracking-widest text-sm uppercase z-10">Sign In</span>';
+            }, 1000);
+        };
+
+        window.handleSOSSubmit = async (event) => {
+            event.preventDefault();
+            if (!currentUser) {
+                showNotification('Error', 'Authentication required', 'alert-circle', 'text-red-400');
+                return;
+            }
+
+            const btn = document.getElementById('saveSosBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="animate-pulse tracking-widest text-sm uppercase">Saving to Cloud...</span>';
+            btn.disabled = true;
+
+            const sosData = {
+                jacketId: document.getElementById('jacketId').value,
+                primaryContact: document.getElementById('primaryContact').value,
+                relation: document.getElementById('relation').value,
+                policeAlert: document.getElementById('policeAlert').checked,
+                updatedAt: new Date().toISOString(),
+                userId: currentUser.uid
+            };
+
+            try {
+                // Rule 1: Use strict paths
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'sos_profiles', currentUser.uid);
+                await setDoc(docRef, sosData);
+                
+                showNotification('Success', 'Jacket profile updated securely in backend.');
+                btn.innerHTML = '<span class="tracking-widest text-sm uppercase">System Active</span> <i data-lucide="check" class="w-5 h-5"></i>';
+                btn.classList.replace('bg-graphite', 'bg-green-700');
+            } catch (error) {
+                console.error("Save error:", error);
+                showNotification('Error', 'Failed to save data. Try again.', 'alert-circle', 'text-red-400');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        };
+
+        // Attach listeners
+        document.getElementById('authForm').addEventListener('submit', window.handleLogin);
+        document.getElementById('sosDetailsForm').addEventListener('submit', window.handleSOSSubmit);
+
+        // Bootstrap
+        lucide.createIcons();
+        initFirebase();
+    </script>
+</body>
+</html>
