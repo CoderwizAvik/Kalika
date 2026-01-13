@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KALIKA - Safety Portal</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Inter:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bone: {
+                            DEFAULT: '#F9F6EE',
+                            dark: '#EBE7DE'
+                        },
+                        graphite: {
+                            DEFAULT: '#252525',
+                            light: '#3A3A3A',
+                            hover: '#1a1a1a'
+                        }
+                    },
+                    fontFamily: {
+                        brand: ['Cinzel', 'serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
+                        'fade-in': 'fadeIn 0.8s ease-out forwards',
+                        'slide-in-right': 'slideInRight 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'fade-out': 'fadeOut 0.4s ease-in forwards',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        fadeOut: {
+                            '0%': { opacity: '1', transform: 'scale(1)' },
+                            '100%': { opacity: '0', transform: 'scale(0.95)' },
+                        },
+                        slideInRight: {
+                            '0%': { opacity: '0', transform: 'translateX(50px)' },
+                            '100%': { opacity: '1', transform: 'translateX(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        .input-group:focus-within label,
+        .input-group input:not(:placeholder-shown) + label {
+            transform: translateY(-1.5rem) scale(0.85);
+            color: #252525;
+        }
+
+        .bg-texture {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        #sosPage, #statusPage {
+            display: none;
+            opacity: 0;
+        }
+        
+        #sosPage.active, #statusPage.active {
+            display: flex;
+        }
+
+        #sparksCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .status-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-bone text-graphite font-sans min-h-screen relative overflow-hidden selection:bg-graphite selection:text-bone">
+
+    <canvas id="sparksCanvas"></canvas>
+    <div class="absolute inset-0 bg-texture z-0"></div>
+
+    <!-- PAGE 1: LOGIN -->
+    <div id="loginPage" class="min-h-screen flex items-center justify-center relative z-10 p-6 transition-all duration-500">
+        <main class="w-full max-w-[1200px] flex flex-col md:flex-row items-center justify-center">
+            <div class="hidden md:flex flex-col justify-center items-start w-1/2 pr-12 animate-fade-in">
+                <h2 class="font-brand text-6xl lg:text-8xl tracking-widest text-graphite opacity-90">KALIKA</h2>
+                <p class="text-xs font-sans tracking-[0.4em] uppercase text-stone-500 mb-4 ml-1">An initiative by CompileX</p>
+                <div class="h-0.5 w-24 bg-graphite mb-6"></div>
+                <p class="font-serif text-xl text-stone-600 italic leading-relaxed max-w-sm">
+                    "Empowering safety through elegant technology." <br>
+                    <span class="text-sm not-italic font-sans text-stone-400 mt-2 block tracking-widest uppercase">— The Guardian Project</span>
+                </p>
+            </div>
+
+            <div class="w-full md:w-1/2 max-w-[480px] bg-white/60 backdrop-blur-md border border-white/50 shadow-xl rounded-2xl p-8 md:p-12 animate-fade-in-up">
+                <div class="md:hidden text-center mb-8">
+                    <h1 class="font-brand text-4xl tracking-widest text-graphite">KALIKA</h1>
+                    <p class="text-[10px] font-sans tracking-[0.3em] uppercase text-stone-500 mt-1">An initiative by CompileX</p>
+                </div>
+
+                <div class="mb-10 text-center md:text-left">
+                    <p class="text-xs font-bold tracking-[0.2em] uppercase text-stone-500 mb-2">Secure Access</p>
+                    <h2 class="font-serif text-3xl md:text-4xl text-graphite">Welcome Back</h2>
+                </div>
+
+                <form class="space-y-8" id="authForm">
+                    <div class="input-group relative">
+                        <input type="email" id="email" class="peer w-full bg-transparent border-b border-stone-300 py-2.5 text-graphite placeholder-transparent focus:outline-none focus:border-graphite transition-colors" placeholder="Email" required>
+                        <label for="email" class="absolute left-0 top-2.5 text-stone-400 text-sm transition-all pointer-events-none">Email Address</label>
+                    </div>
+                    <div class="input-group relative">
+                        <input type="password" id="password" class="peer w-full bg-transparent border-b border-stone-300 py-2.5 text-graphite placeholder-transparent focus:outline-none focus:border-graphite transition-colors" placeholder="Password" required>
+                        <label for="password" class="absolute left-0 top-2.5 text-stone-400 text-sm transition-all pointer-events-none">Password</label>
+                    </div>
+                    <button type="submit" id="loginBtn" class="group w-full bg-graphite text-bone py-4 px-6 rounded-full hover:bg-graphite-hover transition-all shadow-lg flex items-center justify-center gap-2 overflow-hidden relative">
+                        <span class="font-medium tracking-widest text-sm uppercase z-10">Sign In</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1 z-10"></i>
+                    </button>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <!-- PAGE 2: SOS SETUP -->
+    <div id="sosPage" class="min-h-screen items-center justify-center relative z-10 p-6 space-y-8">
+        <main class="w-full max-w-[900px] animate-slide-in-right">
+            <div class="bg-white/70 backdrop-blur-xl border border-white/60 shadow-2xl rounded-3xl p-8 md:p-16 relative overflow-hidden">
+                <header class="mb-12">
+                    <div class="flex items-center gap-2 text-stone-400 mb-4">
+                        <span class="font-brand text-xl tracking-tighter text-graphite">KALIKA</span>
+                        <span class="h-4 w-[1px] bg-stone-300"></span>
+                        <span class="text-[10px] uppercase tracking-widest">SOS Configuration</span>
+                    </div>
+                    <h1 class="font-serif text-4xl md:text-5xl text-graphite mb-4">Welcome to Safety</h1>
+                    <p class="text-stone-500 max-w-md">Connect your Women's Safety Jacket and configure emergency protocols to continue.</p>
+                </header>
+
+                <form class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8" id="sosDetailsForm">
+                    <div class="space-y-6">
+                        <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-stone-400 border-b border-stone-100 pb-2">Device Pairing</h3>
+                        <div class="input-group relative">
+                            <input type="text" id="jacketId" class="peer w-full bg-transparent border-b border-stone-300 py-2.5 text-graphite placeholder-transparent focus:outline-none focus:border-graphite transition-colors" placeholder="Jacket ID" required>
+                            <label for="jacketId" class="absolute left-0 top-2.5 text-stone-400 text-sm transition-all pointer-events-none">Jacket Serial Number (ID)</label>
+                        </div>
+                        <div class="flex items-center gap-4 p-4 bg-bone/50 rounded-xl border border-stone-200/50">
+                            <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                                <i data-lucide="bluetooth" class="w-5 h-5 text-green-600 animate-pulse"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-semibold">Bluetooth Status</p>
+                                <p class="text-[10px] text-stone-500 uppercase">Searching for Jacket...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-stone-400 border-b border-stone-100 pb-2">Emergency Contacts</h3>
+                        <div class="input-group relative">
+                            <input type="text" id="primaryContact" class="peer w-full bg-transparent border-b border-stone-300 py-2.5 text-graphite placeholder-transparent focus:outline-none focus:border-graphite transition-colors" placeholder="Primary Contact" required>
+                            <label for="primaryContact" class="absolute left-0 top-2.5 text-stone-400 text-sm transition-all pointer-events-none">Primary SOS Number</label>
+                        </div>
+                        <div class="input-group relative">
+                            <input type="text" id="relation" class="peer w-full bg-transparent border-b border-stone-300 py-2.5 text-graphite placeholder-transparent focus:outline-none focus:border-graphite transition-colors" placeholder="Relation" required>
+                            <label for="relation" class="absolute left-0 top-2.5 text-stone-400 text-sm transition-all pointer-events-none">Relationship</label>
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-2 pt-6">
+                        <button type="submit" id="saveSosBtn" class="group w-full bg-graphite text-bone py-5 px-12 rounded-full hover:bg-graphite-hover transition-all shadow-lg flex items-center justify-center gap-3">
+                            <span class="font-bold tracking-[0.2em] text-sm uppercase">Activate Safety System</span>
+                            <i data-lucide="zap" class="w-5 h-5 animate-pulse"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <!-- PAGE 3: STATUS DASHBOARD (High fidelity diagnostics) -->
+    <div id="statusPage" class="min-h-screen items-center justify-center relative z-20 p-6">
+        <main class="w-full max-w-[1100px] flex flex-col gap-8 animate-fade-in">
+            <div class="flex flex-col md:flex-row justify-between items-end gap-6">
+                <div>
+                    <h2 class="font-brand text-sm tracking-[0.4em] text-stone-500 uppercase mb-2">Operational State</h2>
+                    <h1 class="font-serif text-5xl text-graphite flex items-center gap-4">
+                        System Active <span class="flex h-3 w-3 rounded-full bg-green-500 shadow-[0_0_15px_rgba(34,197,94,0.8)]"></span>
+                    </h1>
+                </div>
+                <div class="flex gap-4">
+                    <!-- Updated Button with explicit Google Maps functionality -->
+                    <button onclick="openGoogleMapsLocation()" id="locationBtn" class="group bg-white hover:bg-graphite hover:text-bone transition-all px-6 py-3 rounded-full border border-stone-200 flex items-center gap-3 shadow-md">
+                        <i data-lucide="map" class="w-4 h-4 text-red-500 group-hover:text-bone transition-colors"></i>
+                        <span id="locationStatusText" class="text-xs font-bold uppercase tracking-widest">Open in Google Maps</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Battery Card -->
+                <div class="bg-white p-8 rounded-[2rem] shadow-xl border border-stone-100 flex flex-col items-center justify-center gap-6 group hover:scale-[1.02] transition-transform">
+                    <div class="relative w-32 h-32 flex items-center justify-center">
+                        <svg class="w-full h-full transform -rotate-90">
+                            <circle cx="64" cy="64" r="58" stroke="currentColor" stroke-width="8" fill="transparent" class="text-stone-100" />
+                            <circle cx="64" cy="64" r="58" stroke="currentColor" stroke-width="8" fill="transparent" stroke-dasharray="364.4" stroke-dashoffset="54.6" class="text-green-500 transition-all duration-1000" />
+                        </svg>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span class="text-3xl font-bold">85%</span>
+                            <span class="text-[10px] uppercase tracking-widest text-stone-400">Battery</span>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-sm font-medium text-stone-600">Estimated 14h Left</p>
+                        <p class="text-[10px] text-green-500 uppercase font-bold tracking-tighter mt-1">Normal Discharge</p>
+                    </div>
+                </div>
+
+                <!-- Signal/Condition Card -->
+                <div class="bg-graphite text-bone p-8 rounded-[2rem] shadow-2xl flex flex-col gap-6 group hover:scale-[1.02] transition-transform">
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-stone-400">Sensor Condition</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs">Bio-Vitals</span>
+                            <span class="text-[10px] px-2 py-0.5 bg-green-500/20 text-green-400 rounded-full border border-green-500/30">Stable</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs">Impact Detection</span>
+                            <span class="text-[10px] px-2 py-0.5 bg-green-500/20 text-green-400 rounded-full border border-green-500/30">Ready</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs">GPS Linkage</span>
+                            <span id="coordsDisplay" class="text-[10px] tracking-tight text-bone/60">Searching GPS...</span>
+                        </div>
+                    </div>
+                    <div class="mt-auto flex items-center gap-4 border-t border-white/10 pt-4">
+                        <i data-lucide="shield-check" class="w-8 h-8 text-bone/50"></i>
+                        <p class="text-[10px] leading-tight text-stone-400 uppercase tracking-widest">Encrypted Defense Protocol v4.0 Active</p>
+                    </div>
+                </div>
+
+                <!-- Emergency Contact Preview -->
+                <div class="bg-white p-8 rounded-[2rem] shadow-xl border border-stone-100 flex flex-col gap-6 group hover:scale-[1.02] transition-transform">
+                    <div class="flex justify-between items-start">
+                        <h3 class="text-xs font-bold uppercase tracking-widest text-stone-400">Emergency Protocol</h3>
+                        <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-500"></i>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <p id="displayPrimary" class="text-xl font-serif text-graphite">9876543210</p>
+                        <p id="displayRelation" class="text-[10px] uppercase tracking-widest text-stone-400">Primary Contact (Father)</p>
+                    </div>
+                    <div class="bg-bone p-4 rounded-xl space-y-2">
+                        <p class="text-[10px] font-bold uppercase tracking-wider mb-2">Active Triggers:</p>
+                        <ul class="text-[10px] space-y-1 text-stone-600 italic">
+                            <li class="flex items-center gap-2"><div class="w-1 h-1 rounded-full bg-graphite"></div> Rapid pressure change</li>
+                            <li class="flex items-center gap-2"><div class="w-1 h-1 rounded-full bg-graphite"></div> Manual activation button</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="window.location.reload()" class="mx-auto mt-4 text-stone-400 hover:text-graphite transition-colors text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+                <i data-lucide="log-out" class="w-4 h-4"></i> Deactivate System
+            </button>
+        </main>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="notification" class="fixed bottom-8 right-8 bg-graphite text-bone px-6 py-4 rounded-xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-50 flex items-center gap-3">
+        <div id="notifyIcon" class="p-2 bg-white/10 rounded-lg"></div>
+        <div>
+            <h4 id="notifyTitle" class="font-bold text-sm tracking-wide">Success</h4>
+            <p id="notifyMsg" class="text-xs text-stone-300"></p>
+        </div>
+    </div>
+
+    <script>
+        // Spark Animation Logic
+        const canvas = document.getElementById('sparksCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        class Particle {
+            constructor() {
+                this.x = canvas.width / 2;
+                this.y = canvas.height / 2;
+                this.size = Math.random() * 3 + 1;
+                this.speedX = (Math.random() - 0.5) * 30;
+                this.speedY = (Math.random() - 0.5) * 30;
+                this.color = `hsl(${Math.random() * 20 + 30}, 100%, 70%)`; // Golden sparks
+                this.life = 1;
+                this.decay = Math.random() * 0.02 + 0.01;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.life -= this.decay;
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = this.life;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function animateSparks() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles = particles.filter(p => p.life > 0);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            if (particles.length > 0) requestAnimationFrame(animateSparks);
+        }
+
+        function createExplosion() {
+            for (let i = 0; i < 150; i++) {
+                particles.push(new Particle());
+            }
+            animateSparks();
+        }
+
+        // Live Location Functionality
+        const openGoogleMapsLocation = () => {
+            const statusText = document.getElementById('locationStatusText');
+            const coordsDisplay = document.getElementById('coordsDisplay');
+            
+            statusText.innerText = "LOCATING...";
+            
+            if (!navigator.geolocation) {
+                showNotification('Error', 'Geolocation is not supported by your browser.', 'alert-circle', 'text-red-400');
+                statusText.innerText = "OPEN IN GOOGLE MAPS";
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    
+                    // Update UI text
+                    coordsDisplay.innerText = `${lat.toFixed(4)}° N, ${lng.toFixed(4)}° E`;
+                    statusText.innerText = "OPEN IN GOOGLE MAPS";
+                    
+                    showNotification('GPS Found', 'Opening Google Maps...', 'map', 'text-blue-400');
+                    
+                    // Construct Google Maps URL and open in new tab
+                    const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+                    window.open(mapsUrl, '_blank');
+                },
+                (error) => {
+                    let msg = "Could not retrieve location.";
+                    if (error.code === 1) msg = "Location access denied.";
+                    showNotification('GPS Failure', msg, 'alert-circle', 'text-red-400');
+                    statusText.innerText = "OPEN IN GOOGLE MAPS";
+                    coordsDisplay.innerText = "GPS Link Failed";
+                },
+                { enableHighAccuracy: true }
+            );
+        };
+
+        // UI Helpers
+        const showNotification = (title, message, iconType = 'check-circle', color = 'text-green-400') => {
+            const notification = document.getElementById('notification');
+            document.getElementById('notifyTitle').innerText = title;
+            document.getElementById('notifyMsg').innerText = message;
+            document.getElementById('notifyIcon').innerHTML = `<i data-lucide="${iconType}" class="w-5 h-5 ${color}"></i>`;
+            lucide.createIcons();
+            notification.classList.remove('translate-y-24', 'opacity-0');
+            setTimeout(() => notification.classList.add('translate-y-24', 'opacity-0'), 4000);
+        };
+
+        // Event Handlers
+        const handleLogin = (event) => {
+            event.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            const loginPage = document.getElementById('loginPage');
+            const sosPage = document.getElementById('sosPage');
+
+            btn.innerHTML = '<span class="animate-pulse tracking-widest text-sm uppercase">Authenticating...</span>';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                loginPage.classList.add('animate-fade-out');
+                setTimeout(() => {
+                    loginPage.style.display = 'none';
+                    sosPage.classList.add('active');
+                    sosPage.style.opacity = '1';
+                    showNotification('Welcome', 'Identity verified. Accessing jacket console.');
+                }, 400);
+            }, 1000);
+        };
+
+        const handleSOSSubmit = (event) => {
+            event.preventDefault();
+            const btn = document.getElementById('saveSosBtn');
+            const sosPage = document.getElementById('sosPage');
+            const statusPage = document.getElementById('statusPage');
+
+            const primaryContact = document.getElementById('primaryContact').value;
+            const relation = document.getElementById('relation').value;
+
+            btn.innerHTML = '<span class="animate-pulse tracking-widest text-sm uppercase">Powering Up...</span>';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                // Mindblowing Spark Effect
+                createExplosion();
+                
+                // Switch to Status Dashboard
+                sosPage.classList.add('animate-fade-out');
+                
+                setTimeout(() => {
+                    sosPage.style.display = 'none';
+                    statusPage.classList.add('active');
+                    statusPage.style.opacity = '1';
+                    
+                    // Update data display
+                    document.getElementById('displayPrimary').innerText = primaryContact;
+                    document.getElementById('displayRelation').innerText = `Primary Contact (${relation})`;
+                    
+                    // Attempt initial location fetch silently
+                    navigator.geolocation.getCurrentPosition(p => {
+                        document.getElementById('coordsDisplay').innerText = `${p.coords.latitude.toFixed(4)}° N, ${p.coords.longitude.toFixed(4)}° E`;
+                    });
+                    
+                    showNotification('System Active', 'Jacket linking complete. Monitoring status.', 'shield', 'text-bone');
+                }, 400);
+            }, 1500);
+        };
+
+        // Attach listeners
+        document.getElementById('authForm').addEventListener('submit', handleLogin);
+        document.getElementById('sosDetailsForm').addEventListener('submit', handleSOSSubmit);
+
+        // Initialize Icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>
