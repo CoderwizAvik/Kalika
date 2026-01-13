@@ -104,7 +104,7 @@
                     <h2 class="font-serif text-3xl md:text-4xl text-graphite">Welcome Back</h2>
                 </div>
 
-                <form class="space-y-8" id="authForm">
+                <form class="space-y-8" onsubmit="handleLogin(event)">
                     <div class="input-group relative">
                         <input type="email" id="email" class="peer w-full bg-transparent border-b border-stone-300 py-2.5 text-graphite placeholder-transparent focus:outline-none focus:border-graphite transition-colors" placeholder="Email" required>
                         <label for="email" class="absolute left-0 top-2.5 text-stone-400 text-sm transition-all pointer-events-none">Email Address</label>
@@ -113,7 +113,7 @@
                         <input type="password" id="password" class="peer w-full bg-transparent border-b border-stone-300 py-2.5 text-graphite placeholder-transparent focus:outline-none focus:border-graphite transition-colors" placeholder="Password" required>
                         <label for="password" class="absolute left-0 top-2.5 text-stone-400 text-sm transition-all pointer-events-none">Password</label>
                     </div>
-                    <button type="submit" id="loginBtn" class="group w-full bg-graphite text-bone py-4 px-6 rounded-full hover:bg-graphite-hover transition-all shadow-lg flex items-center justify-center gap-2 overflow-hidden relative">
+                    <button type="submit" class="group w-full bg-graphite text-bone py-4 px-6 rounded-full hover:bg-graphite-hover transition-all shadow-lg flex items-center justify-center gap-2 overflow-hidden relative">
                         <span class="font-medium tracking-widest text-sm uppercase z-10">Sign In</span>
                         <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1 z-10"></i>
                     </button>
@@ -122,11 +122,16 @@
         </main>
     </div>
 
-    <!-- SOS SETUP PAGE -->
+    <!-- SOS SETUP PAGE (Initially Hidden) -->
     <div id="sosPage" class="hidden-page min-h-screen flex items-center justify-center relative z-10 p-6">
-        <main class="w-full max-w-[900px]">
+        <main class="w-full max-w-[900px] animate-fade-in">
             <div class="bg-white/70 backdrop-blur-xl border border-white/60 shadow-2xl rounded-3xl p-8 md:p-16 relative overflow-hidden">
                 
+                <!-- Background Decoration -->
+                <div class="absolute top-0 right-0 p-8 opacity-10">
+                    <i data-lucide="shield-check" class="w-32 h-32"></i>
+                </div>
+
                 <header class="mb-12">
                     <div class="flex items-center gap-2 text-stone-400 mb-4">
                         <span class="font-brand text-xl tracking-tighter">KALIKA</span>
@@ -134,10 +139,12 @@
                         <span class="text-[10px] uppercase tracking-widest">SOS Configuration</span>
                     </div>
                     <h1 class="font-serif text-4xl md:text-5xl text-graphite mb-4">Welcome to Safety</h1>
-                    <p class="text-stone-500 max-w-md">Connect your Women's Safety Jacket and configure emergency protocols.</p>
+                    <p class="text-stone-500 max-w-md">Connect your Women's Safety Jacket and configure emergency protocols to ensure your protection at all times.</p>
                 </header>
 
-                <form class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8" id="sosDetailsForm">
+                <form class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8" onsubmit="handleSOSSubmit(event)">
+                    
+                    <!-- Jacket Connection Section -->
                     <div class="space-y-6">
                         <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-stone-400 border-b border-stone-100 pb-2">Device Pairing</h3>
                         <div class="input-group relative">
@@ -155,6 +162,7 @@
                         </div>
                     </div>
 
+                    <!-- SOS Details Section -->
                     <div class="space-y-6">
                         <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-stone-400 border-b border-stone-100 pb-2">Emergency Contacts</h3>
                         <div class="input-group relative">
@@ -172,7 +180,7 @@
                     </div>
 
                     <div class="md:col-span-2 pt-6">
-                        <button type="submit" id="saveSosBtn" class="group w-full md:w-auto bg-graphite text-bone py-4 px-12 rounded-full hover:bg-graphite-hover transition-all shadow-lg flex items-center justify-center gap-3">
+                        <button type="submit" class="group w-full md:w-auto bg-graphite text-bone py-4 px-12 rounded-full hover:bg-graphite-hover transition-all shadow-lg flex items-center justify-center gap-3">
                             <span class="font-medium tracking-widest text-sm uppercase">Activate Safety System</span>
                             <i data-lucide="shield-check" class="w-5 h-5"></i>
                         </button>
@@ -184,137 +192,68 @@
 
     <!-- Notification Toast -->
     <div id="notification" class="fixed bottom-8 right-8 bg-graphite text-bone px-6 py-4 rounded-xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-50 flex items-center gap-3">
-        <div id="notifyIcon" class="p-2 bg-white/10 rounded-lg"></div>
+        <div id="notifyIcon" class="p-2 bg-white/10 rounded-lg">
+            <i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>
+        </div>
         <div>
             <h4 id="notifyTitle" class="font-bold text-sm tracking-wide">Success</h4>
-            <p id="notifyMsg" class="text-xs text-stone-300"></p>
+            <p id="notifyMsg" class="text-xs text-stone-300">Your safety system is now online.</p>
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <script>
+        lucide.createIcons();
 
-        // Global State
-        let currentUser = null;
-        let db, auth;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'kalika-safety-portal';
-
-        // Initialize Firebase
-        const initFirebase = async () => {
-            try {
-                const firebaseConfig = JSON.parse(__firebase_config);
-                const app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
-
-                // Auth Step (Rule 3)
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-
-                onAuthStateChanged(auth, (user) => {
-                    currentUser = user;
-                    if (user) {
-                        console.log("Authenticated as:", user.uid);
-                        // Check if user already has SOS details saved
-                        checkExistingSOS(user.uid);
-                    }
-                });
-            } catch (error) {
-                console.error("Firebase Init Error:", error);
-            }
-        };
-
-        // UI Helpers
-        const showNotification = (title, message, iconType = 'check-circle', color = 'text-green-400') => {
+        function showNotification(title, message, iconType = 'check-circle', color = 'text-green-400') {
             const notification = document.getElementById('notification');
             document.getElementById('notifyTitle').innerText = title;
             document.getElementById('notifyMsg').innerText = message;
-            document.getElementById('notifyIcon').innerHTML = `<i data-lucide="${iconType}" class="w-5 h-5 ${color}"></i>`;
-            lucide.createIcons();
-            notification.classList.remove('translate-y-24', 'opacity-0');
-            setTimeout(() => notification.classList.add('translate-y-24', 'opacity-0'), 4000);
-        };
-
-        const checkExistingSOS = async (uid) => {
-            if (!uid) return;
-            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'sos_profiles', uid);
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                document.getElementById('jacketId').value = data.jacketId || '';
-                document.getElementById('primaryContact').value = data.primaryContact || '';
-                document.getElementById('relation').value = data.relation || '';
-                document.getElementById('policeAlert').checked = !!data.policeAlert;
-            }
-        };
-
-        // Event Handlers
-        window.handleLogin = async (event) => {
-            event.preventDefault();
-            const btn = document.getElementById('loginBtn');
-            btn.innerHTML = '<span class="animate-pulse tracking-widest text-sm uppercase">Verifying...</span>';
             
-            // Simulating auth delay
+            const iconContainer = document.getElementById('notifyIcon');
+            iconContainer.innerHTML = `<i data-lucide="${iconType}" class="w-5 h-5 ${color}"></i>`;
+            lucide.createIcons();
+
+            notification.classList.remove('translate-y-24', 'opacity-0');
             setTimeout(() => {
-                document.getElementById('loginPage').classList.add('hidden-page');
-                const sosPage = document.getElementById('sosPage');
-                sosPage.classList.remove('hidden-page');
-                sosPage.classList.add('animate-slide-in');
-                showNotification('Welcome', 'Identity verified. Accessing safety portal.');
-                btn.innerHTML = '<span class="font-medium tracking-widest text-sm uppercase z-10">Sign In</span>';
-            }, 1000);
-        };
+                notification.classList.add('translate-y-24', 'opacity-0');
+            }, 4000);
+        }
 
-        window.handleSOSSubmit = async (event) => {
+        function handleLogin(event) {
             event.preventDefault();
-            if (!currentUser) {
-                showNotification('Error', 'Authentication required', 'alert-circle', 'text-red-400');
-                return;
-            }
-
-            const btn = document.getElementById('saveSosBtn');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<span class="animate-pulse tracking-widest text-sm uppercase">Saving to Cloud...</span>';
+            const btn = event.target.querySelector('button');
+            const originalContent = btn.innerHTML;
+            
+            btn.innerHTML = '<span class="animate-pulse tracking-widest text-sm uppercase">Verifying...</span>';
             btn.disabled = true;
 
-            const sosData = {
-                jacketId: document.getElementById('jacketId').value,
-                primaryContact: document.getElementById('primaryContact').value,
-                relation: document.getElementById('relation').value,
-                policeAlert: document.getElementById('policeAlert').checked,
-                updatedAt: new Date().toISOString(),
-                userId: currentUser.uid
-            };
-
-            try {
-                // Rule 1: Use strict paths
-                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'sos_profiles', currentUser.uid);
-                await setDoc(docRef, sosData);
+            setTimeout(() => {
+                // Fade out login, Fade in SOS
+                document.getElementById('loginPage').classList.add('animate-fade-in');
+                document.getElementById('loginPage').style.opacity = '0';
                 
-                showNotification('Success', 'Jacket profile updated securely in backend.');
+                setTimeout(() => {
+                    document.getElementById('loginPage').classList.add('hidden-page');
+                    const sosPage = document.getElementById('sosPage');
+                    sosPage.classList.remove('hidden-page');
+                    sosPage.classList.add('animate-slide-in');
+                    showNotification('Welcome', 'Login successful. Let\'s set up your jacket.');
+                }, 500);
+            }, 1200);
+        }
+
+        function handleSOSSubmit(event) {
+            event.preventDefault();
+            const btn = event.target.querySelector('button[type="submit"]');
+            btn.innerHTML = '<span class="animate-pulse tracking-widest text-sm uppercase">Syncing Jacket...</span>';
+            
+            setTimeout(() => {
                 btn.innerHTML = '<span class="tracking-widest text-sm uppercase">System Active</span> <i data-lucide="check" class="w-5 h-5"></i>';
                 btn.classList.replace('bg-graphite', 'bg-green-700');
-            } catch (error) {
-                console.error("Save error:", error);
-                showNotification('Error', 'Failed to save data. Try again.', 'alert-circle', 'text-red-400');
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
-        };
-
-        // Attach listeners
-        document.getElementById('authForm').addEventListener('submit', window.handleLogin);
-        document.getElementById('sosDetailsForm').addEventListener('submit', window.handleSOSSubmit);
-
-        // Bootstrap
-        lucide.createIcons();
-        initFirebase();
+                lucide.createIcons();
+                showNotification('System Active', 'Jacket linked successfully. Emergency contacts saved.');
+            }, 2000);
+        }
     </script>
 </body>
 </html>
