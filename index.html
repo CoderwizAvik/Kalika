@@ -39,7 +39,8 @@
                     animation: {
                         'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
                         'fade-in': 'fadeIn 0.8s ease-out forwards',
-                        'slide-in': 'slideIn 0.5s ease-out forwards',
+                        'slide-in-right': 'slideInRight 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'fade-out': 'fadeOut 0.4s ease-in forwards',
                     },
                     keyframes: {
                         fadeInUp: {
@@ -50,8 +51,12 @@
                             '0%': { opacity: '0' },
                             '100%': { opacity: '1' },
                         },
-                        slideIn: {
-                            '0%': { opacity: '0', transform: 'translateX(30px)' },
+                        fadeOut: {
+                            '0%': { opacity: '1', transform: 'scale(1)' },
+                            '100%': { opacity: '0', transform: 'scale(0.95)' },
+                        },
+                        slideInRight: {
+                            '0%': { opacity: '0', transform: 'translateX(50px)' },
                             '100%': { opacity: '1', transform: 'translateX(0)' },
                         }
                     }
@@ -62,8 +67,7 @@
     
     <style>
         .input-group:focus-within label,
-        .input-group input:not(:placeholder-shown) + label,
-        .input-group select:not([value=""]) + label {
+        .input-group input:not(:placeholder-shown) + label {
             transform: translateY(-1.5rem) scale(0.85);
             color: #252525;
         }
@@ -73,16 +77,25 @@
             pointer-events: none;
         }
 
-        .hidden-page { display: none; }
+        /* Initial state of the SOS page is completely hidden and off-screen */
+        #sosPage {
+            display: none;
+            opacity: 0;
+        }
+        
+        #sosPage.active {
+            display: flex;
+        }
     </style>
 </head>
-<body class="bg-bone text-graphite font-sans min-h-screen relative overflow-x-hidden selection:bg-graphite selection:text-bone">
+<body class="bg-bone text-graphite font-sans min-h-screen relative overflow-hidden selection:bg-graphite selection:text-bone">
 
     <div class="absolute inset-0 bg-texture z-0"></div>
 
-    <!-- LOGIN PAGE -->
-    <div id="loginPage" class="min-h-screen flex items-center justify-center relative z-10 p-6">
+    <!-- PAGE 1: LOGIN -->
+    <div id="loginPage" class="min-h-screen flex items-center justify-center relative z-10 p-6 transition-all duration-500">
         <main class="w-full max-w-[1200px] flex flex-col md:flex-row items-center justify-center">
+            <!-- Branding Section -->
             <div class="hidden md:flex flex-col justify-center items-start w-1/2 pr-12 animate-fade-in">
                 <h2 class="font-brand text-6xl lg:text-8xl tracking-widest text-graphite opacity-90">KALIKA</h2>
                 <p class="text-xs font-sans tracking-[0.4em] uppercase text-stone-500 mb-4 ml-1">An initiative by CompileX</p>
@@ -93,6 +106,7 @@
                 </p>
             </div>
 
+            <!-- Login Form Card -->
             <div class="w-full md:w-1/2 max-w-[480px] bg-white/60 backdrop-blur-md border border-white/50 shadow-xl rounded-2xl p-8 md:p-12 animate-fade-in-up">
                 <div class="md:hidden text-center mb-8">
                     <h1 class="font-brand text-4xl tracking-widest text-graphite">KALIKA</h1>
@@ -104,7 +118,7 @@
                     <h2 class="font-serif text-3xl md:text-4xl text-graphite">Welcome Back</h2>
                 </div>
 
-                <form class="space-y-8" onsubmit="handleLogin(event)">
+                <form class="space-y-8" id="authForm">
                     <div class="input-group relative">
                         <input type="email" id="email" class="peer w-full bg-transparent border-b border-stone-300 py-2.5 text-graphite placeholder-transparent focus:outline-none focus:border-graphite transition-colors" placeholder="Email" required>
                         <label for="email" class="absolute left-0 top-2.5 text-stone-400 text-sm transition-all pointer-events-none">Email Address</label>
@@ -113,7 +127,7 @@
                         <input type="password" id="password" class="peer w-full bg-transparent border-b border-stone-300 py-2.5 text-graphite placeholder-transparent focus:outline-none focus:border-graphite transition-colors" placeholder="Password" required>
                         <label for="password" class="absolute left-0 top-2.5 text-stone-400 text-sm transition-all pointer-events-none">Password</label>
                     </div>
-                    <button type="submit" class="group w-full bg-graphite text-bone py-4 px-6 rounded-full hover:bg-graphite-hover transition-all shadow-lg flex items-center justify-center gap-2 overflow-hidden relative">
+                    <button type="submit" id="loginBtn" class="group w-full bg-graphite text-bone py-4 px-6 rounded-full hover:bg-graphite-hover transition-all shadow-lg flex items-center justify-center gap-2 overflow-hidden relative">
                         <span class="font-medium tracking-widest text-sm uppercase z-10">Sign In</span>
                         <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1 z-10"></i>
                     </button>
@@ -122,29 +136,22 @@
         </main>
     </div>
 
-    <!-- SOS SETUP PAGE (Initially Hidden) -->
-    <div id="sosPage" class="hidden-page min-h-screen flex items-center justify-center relative z-10 p-6">
-        <main class="w-full max-w-[900px] animate-fade-in">
+    <!-- PAGE 2: SOS SETUP (Completely separate logical screen) -->
+    <div id="sosPage" class="min-h-screen items-center justify-center relative z-10 p-6 space-y-8">
+        <main class="w-full max-w-[900px] animate-slide-in-right">
             <div class="bg-white/70 backdrop-blur-xl border border-white/60 shadow-2xl rounded-3xl p-8 md:p-16 relative overflow-hidden">
                 
-                <!-- Background Decoration -->
-                <div class="absolute top-0 right-0 p-8 opacity-10">
-                    <i data-lucide="shield-check" class="w-32 h-32"></i>
-                </div>
-
                 <header class="mb-12">
                     <div class="flex items-center gap-2 text-stone-400 mb-4">
-                        <span class="font-brand text-xl tracking-tighter">KALIKA</span>
+                        <span class="font-brand text-xl tracking-tighter text-graphite">KALIKA</span>
                         <span class="h-4 w-[1px] bg-stone-300"></span>
                         <span class="text-[10px] uppercase tracking-widest">SOS Configuration</span>
                     </div>
                     <h1 class="font-serif text-4xl md:text-5xl text-graphite mb-4">Welcome to Safety</h1>
-                    <p class="text-stone-500 max-w-md">Connect your Women's Safety Jacket and configure emergency protocols to ensure your protection at all times.</p>
+                    <p class="text-stone-500 max-w-md">Connect your Women's Safety Jacket and configure emergency protocols to continue.</p>
                 </header>
 
-                <form class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8" onsubmit="handleSOSSubmit(event)">
-                    
-                    <!-- Jacket Connection Section -->
+                <form class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8" id="sosDetailsForm">
                     <div class="space-y-6">
                         <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-stone-400 border-b border-stone-100 pb-2">Device Pairing</h3>
                         <div class="input-group relative">
@@ -162,7 +169,6 @@
                         </div>
                     </div>
 
-                    <!-- SOS Details Section -->
                     <div class="space-y-6">
                         <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-stone-400 border-b border-stone-100 pb-2">Emergency Contacts</h3>
                         <div class="input-group relative">
@@ -180,7 +186,7 @@
                     </div>
 
                     <div class="md:col-span-2 pt-6">
-                        <button type="submit" class="group w-full md:w-auto bg-graphite text-bone py-4 px-12 rounded-full hover:bg-graphite-hover transition-all shadow-lg flex items-center justify-center gap-3">
+                        <button type="submit" id="saveSosBtn" class="group bg-graphite text-bone py-4 px-12 rounded-full hover:bg-graphite-hover transition-all shadow-lg flex items-center justify-center gap-3">
                             <span class="font-medium tracking-widest text-sm uppercase">Activate Safety System</span>
                             <i data-lucide="shield-check" class="w-5 h-5"></i>
                         </button>
@@ -192,68 +198,71 @@
 
     <!-- Notification Toast -->
     <div id="notification" class="fixed bottom-8 right-8 bg-graphite text-bone px-6 py-4 rounded-xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-50 flex items-center gap-3">
-        <div id="notifyIcon" class="p-2 bg-white/10 rounded-lg">
-            <i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>
-        </div>
+        <div id="notifyIcon" class="p-2 bg-white/10 rounded-lg"></div>
         <div>
             <h4 id="notifyTitle" class="font-bold text-sm tracking-wide">Success</h4>
-            <p id="notifyMsg" class="text-xs text-stone-300">Your safety system is now online.</p>
+            <p id="notifyMsg" class="text-xs text-stone-300"></p>
         </div>
     </div>
 
     <script>
-        lucide.createIcons();
-
-        function showNotification(title, message, iconType = 'check-circle', color = 'text-green-400') {
+        // UI Helpers
+        const showNotification = (title, message, iconType = 'check-circle', color = 'text-green-400') => {
             const notification = document.getElementById('notification');
             document.getElementById('notifyTitle').innerText = title;
             document.getElementById('notifyMsg').innerText = message;
-            
-            const iconContainer = document.getElementById('notifyIcon');
-            iconContainer.innerHTML = `<i data-lucide="${iconType}" class="w-5 h-5 ${color}"></i>`;
+            document.getElementById('notifyIcon').innerHTML = `<i data-lucide="${iconType}" class="w-5 h-5 ${color}"></i>`;
             lucide.createIcons();
-
             notification.classList.remove('translate-y-24', 'opacity-0');
-            setTimeout(() => {
-                notification.classList.add('translate-y-24', 'opacity-0');
-            }, 4000);
-        }
+            setTimeout(() => notification.classList.add('translate-y-24', 'opacity-0'), 4000);
+        };
 
-        function handleLogin(event) {
+        // Event Handlers
+        const handleLogin = (event) => {
             event.preventDefault();
-            const btn = event.target.querySelector('button');
-            const originalContent = btn.innerHTML;
+            const btn = document.getElementById('loginBtn');
+            const loginPage = document.getElementById('loginPage');
+            const sosPage = document.getElementById('sosPage');
+
+            // 1. Loading State
+            btn.innerHTML = '<span class="animate-pulse tracking-widest text-sm uppercase">Authenticating...</span>';
+            btn.disabled = true;
             
-            btn.innerHTML = '<span class="animate-pulse tracking-widest text-sm uppercase">Verifying...</span>';
+            setTimeout(() => {
+                // 2. Hide Login Page with animation
+                loginPage.classList.add('animate-fade-out');
+                
+                setTimeout(() => {
+                    loginPage.style.display = 'none';
+                    
+                    // 3. Reveal SOS Page as a "New Screen"
+                    sosPage.classList.add('active');
+                    sosPage.style.opacity = '1';
+                    
+                    showNotification('Welcome', 'Access granted. Please configure your safety jacket.');
+                }, 400);
+            }, 1000);
+        };
+
+        const handleSOSSubmit = (event) => {
+            event.preventDefault();
+            const btn = document.getElementById('saveSosBtn');
+            btn.innerHTML = '<span class="animate-pulse tracking-widest text-sm uppercase">Activating Sensors...</span>';
             btn.disabled = true;
 
             setTimeout(() => {
-                // Fade out login, Fade in SOS
-                document.getElementById('loginPage').classList.add('animate-fade-in');
-                document.getElementById('loginPage').style.opacity = '0';
-                
-                setTimeout(() => {
-                    document.getElementById('loginPage').classList.add('hidden-page');
-                    const sosPage = document.getElementById('sosPage');
-                    sosPage.classList.remove('hidden-page');
-                    sosPage.classList.add('animate-slide-in');
-                    showNotification('Welcome', 'Login successful. Let\'s set up your jacket.');
-                }, 500);
-            }, 1200);
-        }
-
-        function handleSOSSubmit(event) {
-            event.preventDefault();
-            const btn = event.target.querySelector('button[type="submit"]');
-            btn.innerHTML = '<span class="animate-pulse tracking-widest text-sm uppercase">Syncing Jacket...</span>';
-            
-            setTimeout(() => {
-                btn.innerHTML = '<span class="tracking-widest text-sm uppercase">System Active</span> <i data-lucide="check" class="w-5 h-5"></i>';
+                showNotification('System Active', 'Jacket linked and SOS protocols established.');
+                btn.innerHTML = '<span class="tracking-widest text-sm uppercase">System Fully Active</span> <i data-lucide="check" class="w-5 h-5"></i>';
                 btn.classList.replace('bg-graphite', 'bg-green-700');
-                lucide.createIcons();
-                showNotification('System Active', 'Jacket linked successfully. Emergency contacts saved.');
-            }, 2000);
-        }
+            }, 1500);
+        };
+
+        // Attach listeners
+        document.getElementById('authForm').addEventListener('submit', handleLogin);
+        document.getElementById('sosDetailsForm').addEventListener('submit', handleSOSSubmit);
+
+        // Initialize Icons
+        lucide.createIcons();
     </script>
 </body>
 </html>
